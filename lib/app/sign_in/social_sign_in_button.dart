@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:time_tracker_flutter/common_widgets/custom_elevated_button.dart';
 
 class SocialSignInButton extends CustomElevatedButton {
@@ -15,7 +15,10 @@ class SocialSignInButton extends CustomElevatedButton {
                   style: TextStyle(color: textColor, fontSize: 15.0),
                 ),
               ),
-              Opacity(opacity: 0.0,child: Image.asset(assetName),),
+              Opacity(
+                opacity: 0.0,
+                child: Image.asset(assetName),
+              ),
             ],
           ),
           buttonColor,
