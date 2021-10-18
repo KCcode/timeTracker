@@ -23,12 +23,12 @@ class LandingPage extends StatelessWidget {
           if (user == null) {
             print("in here");
             return SignInPage(auth);
-          } else {
-            return HomePage(
-              auth,
-            );
           }
-        } else {
+          else {
+            return HomePage(auth);
+          }
+        }
+        else {
           return Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
