@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:time_tracker_flutter/app/sign_in/email_sign_in_page.dart';
 import 'package:time_tracker_flutter/app/sign_in/sign_in_button.dart';
 import 'package:time_tracker_flutter/app/sign_in/social_sign_in_button.dart';
 import 'package:time_tracker_flutter/services/authBase.dart';
@@ -15,7 +16,7 @@ class SignInPage extends StatelessWidget {
         title: Text("Time Tracker"),
         elevation: 2.0,
       ),
-      body: _buildContainer(),
+      body: _buildContainer(context),
       backgroundColor: Colors.grey[200],
     );
   }
@@ -28,7 +29,24 @@ class SignInPage extends StatelessWidget {
     }
   }
 
-  Widget _buildContainer() {
+  Future<void> _signInWithGoogle() async {
+    try {
+      await auth.signInWithGoogle();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  void _signInWithEmail(BuildContext context) {
+    Navigator.of(context).push( //look for navigator in ancestor once returned navigator push the route
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,  //how page is presented specific to iOS true : from bottom false : slide from side
+        builder: (context) => EmailSignInPage(auth),
+      ),
+    );
+  }
+
+  Widget _buildContainer(BuildContext context) {
     //private method
     return Padding(
       padding: EdgeInsets.all(16.0),
@@ -48,9 +66,7 @@ class SignInPage extends StatelessWidget {
             height: 8.0,
           ),
           SocialSignInButton("images/google-logo.png", "Sign in with Google",
-              Colors.black87, Colors.white, () {
-            print("pressed google button");
-          }),
+              Colors.black87, Colors.white, _signInWithGoogle),
           SizedBox(
             height: 8.0,
           ),
@@ -70,9 +86,7 @@ class SignInPage extends StatelessWidget {
               ),
             ),
             Colors.teal,
-            () {
-              print('button email pressed');
-            },
+            () => _signInWithEmail(context),
           ),
           SizedBox(
             height: 8.0,
@@ -103,5 +117,4 @@ class SignInPage extends StatelessWidget {
       ),
     );
   }
-
 }
