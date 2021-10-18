@@ -1,19 +1,10 @@
-abstract class StringValidator{
-  bool isValid(String value);
-}
+import 'StringValidator.dart';
+import 'StringValidatorImpl.dart';
 
-class NonEmptyStringValidator implements StringValidator{
-  @override
-  bool isValid(String value){
-    return value.isNotEmpty;
-  }
-}
-
-class EmailAndPasswordVaidators{
+class EmailAndPasswordValidators{
   final StringValidator emailValidator = NonEmptyStringValidator();
   final StringValidator passwordValidator = NonEmptyStringValidator();
   final String invalidEmailErrorText = 'Email can\'t be empty';
   final String invalidPasswordErrorText = 'Password can\'t be empty';
-
 
 }
