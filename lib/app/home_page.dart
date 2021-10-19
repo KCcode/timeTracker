@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter/common_widgets/show_alert_dialog.dart';
 import 'package:time_tracker_flutter/services/authBase.dart';
 
 class HomePage extends StatelessWidget {
-  final AuthBase auth;
 
-  HomePage(this.auth);
-
-  Future<void> _signOut() async {
+  Future<void> _signOut(BuildContext context) async {
     try {
+      final auth = Provider.of<AuthBase>(context, listen: false);
       await auth.signOut(); //no longer have a reference to the firebase user after sign out
     } catch (e) {
       print(e.toString());
@@ -24,7 +23,7 @@ class HomePage extends StatelessWidget {
       defaultActionText: 'Logout',
     );
     if(didRequestSignOut == true){
-      _signOut();
+      _signOut(context);
     }
   }
 

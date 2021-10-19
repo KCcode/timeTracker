@@ -1,16 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter/app/sign_in/validators.dart';
 import 'package:time_tracker_flutter/common_widgets/form_submit_button.dart';
-import 'package:time_tracker_flutter/common_widgets/show_alert_dialog.dart';
+import 'package:time_tracker_flutter/common_widgets/show_exception_alert_dialog.dart';
 import 'package:time_tracker_flutter/services/authBase.dart';
 
 enum EmailSignInFormType { signIn, register }
 
 class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidators {
   //validators being added as mixins
-  final AuthBase auth;
-
-  EmailSignInForm(this.auth);
 
   @override
   _EmailSignInFormState createState() => _EmailSignInFormState();
@@ -34,7 +33,8 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min, //make column to take as much space as needed to show the card in the main axis
+        mainAxisSize: MainAxisSize
+            .min, //make column to take as much space as needed to show the card in the main axis
         children: _buildChildren(),
       ),
     );
@@ -129,18 +129,19 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     });
 
     try {
+      final auth = Provider.of<AuthBase>(context, listen: false);
       if (_formType == EmailSignInFormType.signIn) {
-        await widget.auth.signInWithEmailAndPassword(_email, _password);
+        await auth.signInWithEmailAndPassword(_email, _password);
       } else {
-        await widget.auth.createUserWithEmailAndPassword(_email, _password);
+        await auth.createUserWithEmailAndPassword(_email, _password);
       }
       Navigator.of(context).pop(); //pop this page
-    } catch (e) {
-      print(e.toString());
-      showAlertDialog(context,
-          title: 'Sign In Failed',
-          content: e.toString(),
-          defaultActionText: 'OK');
+    } on FirebaseAuthException catch (e) {
+      showExceptionAlertDialog(
+        context,
+        title: 'Sign In Failed',
+        exception: e,
+      );
     } finally {
       //always executed
       setState(() {
@@ -167,5 +168,14 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         : _emailFocusNode;
     FocusScope.of(context)
         .requestFocus(newFocus); //passing focusNode of the desired text field
+  }
+
+  @override
+  void dispose(){ //called when widget is removed from the widget tree
+    super.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
   }
 }
