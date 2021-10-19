@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter/common_widgets/show_alert_dialog.dart';
-import 'package:time_tracker_flutter/services/auth_provider.dart';
+import 'package:time_tracker_flutter/services/authBase.dart';
 
 class HomePage extends StatelessWidget {
 
   Future<void> _signOut(BuildContext context) async {
     try {
-      final auth = AuthProvider.of(context);
-      await auth!.signOut(); //no longer have a reference to the firebase user after sign out
+      final auth = Provider.of<AuthBase>(context, listen: false);
+      await auth.signOut(); //no longer have a reference to the firebase user after sign out
     } catch (e) {
       print(e.toString());
     }

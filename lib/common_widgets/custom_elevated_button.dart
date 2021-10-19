@@ -13,6 +13,7 @@ class CustomElevatedButton extends StatelessWidget {
     return ElevatedButton(
       //RaisedButton > ElevatedButton
       child: child,
+      //style: ButtonStyle TODO
       style: ElevatedButton.styleFrom(
         primary: buttonColor,
         shape: RoundedRectangleBorder(

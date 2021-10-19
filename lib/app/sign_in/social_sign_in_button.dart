@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:time_tracker_flutter/common_widgets/custom_elevated_button.dart';
 
 class SocialSignInButton extends CustomElevatedButton {
-  SocialSignInButton(String assetName, String text, Color textColor,
-      Color buttonColor, VoidCallback onPressed)
+  final String assetName;
+  final String text;
+  final Color textColor;
+  final Color buttonColor;
+  final VoidCallback? onPressed;
+
+  SocialSignInButton(this.assetName, this.text, this.textColor,
+      this.buttonColor, this.onPressed)
       : super(
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
