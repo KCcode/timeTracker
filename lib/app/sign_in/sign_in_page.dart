@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:time_tracker_flutter/app/sign_in/email_sign_in_page.dart';
 import 'package:time_tracker_flutter/app/sign_in/sign_in_button.dart';
 import 'package:time_tracker_flutter/app/sign_in/social_sign_in_button.dart';
-import 'package:time_tracker_flutter/services/authBase.dart';
+import 'package:time_tracker_flutter/services/auth_provider.dart';
 
 class SignInPage extends StatelessWidget {
-  final AuthBase auth;
-
-  SignInPage(this.auth); //required property of this class
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +18,19 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-  Future<void> _signInAnonymously() async {
+  Future<void> _signInAnonymously(BuildContext context) async {
     try {
-      await auth.signInAnonymously();
+      final auth = AuthProvider.of(context);
+      await auth!.signInAnonymously();
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      await auth.signInWithGoogle();
+      final auth = AuthProvider.of(context);
+      await auth!.signInWithGoogle();
     } catch (e) {
       print(e.toString());
     }
@@ -41,7 +40,7 @@ class SignInPage extends StatelessWidget {
     Navigator.of(context).push( //look for navigator in ancestor once returned navigator push the route
       MaterialPageRoute<void>(
         fullscreenDialog: true,  //how page is presented specific to iOS true : from bottom false : slide from side
-        builder: (context) => EmailSignInPage(auth),
+        builder: (context) => EmailSignInPage(),
       ),
     );
   }
@@ -66,7 +65,7 @@ class SignInPage extends StatelessWidget {
             height: 8.0,
           ),
           SocialSignInButton("images/google-logo.png", "Sign in with Google",
-              Colors.black87, Colors.white, _signInWithGoogle),
+              Colors.black87, Colors.white, () => _signInWithGoogle(context)),
           SizedBox(
             height: 8.0,
           ),
@@ -111,7 +110,7 @@ class SignInPage extends StatelessWidget {
               ),
             ),
             Colors.yellow.shade600,
-            _signInAnonymously,
+            () => _signInAnonymously(context),
           ),
         ],
       ),
