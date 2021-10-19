@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:time_tracker_flutter/common_widgets/show_alert_dialog.dart';
 import 'package:time_tracker_flutter/services/authBase.dart';
 
 class HomePage extends StatelessWidget {
@@ -11,6 +12,19 @@ class HomePage extends StatelessWidget {
       await auth.signOut(); //no longer have a reference to the firebase user after sign out
     } catch (e) {
       print(e.toString());
+    }
+  }
+
+  Future<void> _confirmSignOut(BuildContext context) async {
+    final didRequestSignOut = await showAlertDialog(
+      context,
+      title: 'Logout',
+      content: 'Are you sure you want to logout',
+      cancelActionText: 'Cancel',
+      defaultActionText: 'Logout',
+    );
+    if(didRequestSignOut == true){
+      _signOut();
     }
   }
 
@@ -29,7 +43,7 @@ class HomePage extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            onPressed: _signOut,
+            onPressed: () => _confirmSignOut(context),
           ),
         ],
       ),
