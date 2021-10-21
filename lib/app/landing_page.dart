@@ -19,7 +19,7 @@ class LandingPage extends StatelessWidget {
           final User? user = snapshot.data; //Specified with the type of the StreamBuilder
           if (user == null) {
             print("in here");
-            return SignInPage();
+            return SignInPage.create(context);
           }
           else {
             return HomePage();

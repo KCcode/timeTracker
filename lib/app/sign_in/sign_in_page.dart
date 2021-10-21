@@ -5,24 +5,33 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter/app/sign_in/email_sign_in_page.dart';
 import 'package:time_tracker_flutter/app/sign_in/sign_in_button.dart';
+import 'package:time_tracker_flutter/app/sign_in/sign_in_bloc.dart';
 import 'package:time_tracker_flutter/app/sign_in/social_sign_in_button.dart';
 import 'package:time_tracker_flutter/common_widgets/show_exception_alert_dialog.dart';
 import 'package:time_tracker_flutter/services/authBase.dart';
 
-class SignInPage extends StatefulWidget {
+class SignInPage extends StatelessWidget {
+  final SignInBloc bloc;
 
-  @override
-  _SignInPageState createState() => _SignInPageState();
-}
+  SignInPage({required this.bloc});
 
-class _SignInPageState extends State<SignInPage> {
+  static Widget create(BuildContext context) {
+    final auth = Provider.of<AuthBase>(context, listen: false);
+    return Provider<SignInBloc>(
+      create: (_) => SignInBloc(auth: auth),
+      dispose: (_, bloc) => bloc.dispose(),
+      child: Consumer<SignInBloc>(
+        builder: (_, bloc, __) => SignInPage(bloc: bloc),
+      ),
+    );
+  }
 
-  bool _isLoading = false;
-
-  void _showSignInError(BuildContext context, Exception exception){
-    if(!(exception is FirebaseException && exception.code == 'ERROR_ABORTED_BY_USER')) { //code in auth class
-      showExceptionAlertDialog(
-          context, title: 'Sign in Failed', exception: exception);
+  void _showSignInError(BuildContext context, Exception exception) {
+    if (!(exception is FirebaseException &&
+        exception.code == 'ERROR_ABORTED_BY_USER')) {
+      //code in auth class
+      showExceptionAlertDialog(context,
+          title: 'Sign in Failed', exception: exception);
     }
   }
 
@@ -33,47 +42,44 @@ class _SignInPageState extends State<SignInPage> {
         title: Text("Time Tracker"),
         elevation: 2.0,
       ),
-      body: _buildContainer(context),
+      body: StreamBuilder<bool>(
+          stream: bloc.isLoadingStream,
+          initialData: false,
+          builder: (context, snapshot) {
+            return _buildContainer(context, snapshot.data);
+          }),
       backgroundColor: Colors.grey[200],
     );
   }
 
   Future<void> _signInAnonymously(BuildContext context) async {
     try {
-      setState(() => _isLoading = true);
-      final auth = Provider.of<AuthBase>(context, listen: false);
-      await auth.signInAnonymously();
+      await bloc.signInAnonymously();
     } on Exception catch (e) {
       _showSignInError(context, e);
-    }
-    finally{
-      setState(() => _isLoading = false);
     }
   }
 
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
-      setState(() => _isLoading = true);
-      final auth = Provider.of<AuthBase>(context, listen: false);
-      await auth.signInWithGoogle();
+      await bloc.signInWithGoogle();
     } on Exception catch (e) {
       _showSignInError(context, e);
-    }
-    finally{
-      setState(() => _isLoading = false);
     }
   }
 
   void _signInWithEmail(BuildContext context) {
-    Navigator.of(context).push( //look for navigator in ancestor once returned navigator push the route
+    Navigator.of(context).push(
+      //look for navigator in ancestor once returned navigator push the route
       MaterialPageRoute<void>(
-        fullscreenDialog: true,  //how page is presented specific to iOS true : from bottom false : slide from side
+        fullscreenDialog:
+            true, //how page is presented specific to iOS true : from bottom false : slide from side
         builder: (context) => EmailSignInPage(),
       ),
     );
   }
 
-  Widget _buildContainer(BuildContext context) {
+  Widget _buildContainer(BuildContext context, bool? isLoading) {
     //private method
     return Padding(
       padding: EdgeInsets.all(16.0),
@@ -81,19 +87,28 @@ class _SignInPageState extends State<SignInPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          SizedBox(height: 50.0, child: _buildHeader(),),
+          SizedBox(
+            height: 50.0,
+            child: _buildHeader(isLoading!),
+          ),
           SizedBox(
             height: 8.0,
           ),
-          SocialSignInButton("images/google-logo.png", "Sign in with Google",
-              Colors.black87, Colors.white, _isLoading ? null : () => _signInWithGoogle(context)),
+          SocialSignInButton(
+              "images/google-logo.png",
+              "Sign in with Google",
+              Colors.black87,
+              Colors.white,
+              isLoading ? null : () => _signInWithGoogle(context)),
           SizedBox(
             height: 8.0,
           ),
-          SocialSignInButton("images/facebook-logo.png",
-              "Sign in with Facebook", Colors.white, Colors.blue.shade800, _isLoading ? null :
-              () => print("pressed facebook button")
-          ),
+          SocialSignInButton(
+              "images/facebook-logo.png",
+              "Sign in with Facebook",
+              Colors.white,
+              Colors.blue.shade800,
+              isLoading ? null : () => print("pressed facebook button")),
           SizedBox(
             height: 8.0,
           ),
@@ -106,7 +121,7 @@ class _SignInPageState extends State<SignInPage> {
               ),
             ),
             Colors.teal,
-              _isLoading ? null : () => _signInWithEmail(context),
+            isLoading ? null : () => _signInWithEmail(context),
           ),
           SizedBox(
             height: 8.0,
@@ -131,20 +146,19 @@ class _SignInPageState extends State<SignInPage> {
               ),
             ),
             Colors.yellow.shade600,
-            _isLoading ? null : () => _signInAnonymously(context),
+            isLoading ? null : () => _signInAnonymously(context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader(){
-    if(_isLoading){
+  Widget _buildHeader(bool? isLoading) {
+    if (isLoading!) {
       return Center(
         child: CircularProgressIndicator(),
       );
-    }
-    else{
+    } else {
       return Text(
         "Sign In",
         textAlign: TextAlign.center,
