@@ -24,7 +24,7 @@ class EmailSignInModel with EmailAndPasswordValidators {
     bool isLoading,
     bool submitted,
   ) {
-    return EmailSignInModel(
+    return EmailSignInModel( //return expression on left unless that expression's value is null then return right
         email: email ?? this.email,
         password: password ?? this.password,
         formType: formType ?? this.formType,
