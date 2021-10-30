@@ -1,14 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracker_flutter/common_widgets/show_alert_dialog.dart';
+import 'package:time_tracker_flutter/common_widgets/show_exception_alert_dialog.dart';
 import 'package:time_tracker_flutter/services/authBase.dart';
+import 'package:time_tracker_flutter/services/database.dart';
+import 'models/Job.dart';
 
-class HomePage extends StatelessWidget {
-
+class JobsPage extends StatelessWidget {
   Future<void> _signOut(BuildContext context) async {
     try {
       final auth = Provider.of<AuthBase>(context, listen: false);
-      await auth.signOut(); //no longer have a reference to the firebase user after sign out
+      await auth
+          .signOut(); //no longer have a reference to the firebase user after sign out
     } catch (e) {
       print(e.toString());
     }
@@ -22,16 +26,28 @@ class HomePage extends StatelessWidget {
       cancelActionText: 'Cancel',
       defaultActionText: 'Logout',
     );
-    if(didRequestSignOut == true){
+    if (didRequestSignOut == true) {
       _signOut(context);
+    }
+  }
+
+  Future<void> _createJob(BuildContext context) async {
+    try {
+      final database = Provider.of<Database>(context, listen: false);
+      await database.createJob(Job(name: 'Blogging', ratePerHour: 10));
+    } on FirebaseException catch (e) {
+      showExceptionAlertDialog(context,
+          title: 'Operation Failed', exception: e);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final database = Provider.of<Database>(context, listen: false);
+    database.jobsStream();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home Page'),
+        title: Text('Jobs'),
         actions: <Widget>[
           TextButton(
             //FlatButton > TextButton
@@ -45,6 +61,10 @@ class HomePage extends StatelessWidget {
             onPressed: () => _confirmSignOut(context),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => _createJob(context),
       ),
     );
   }

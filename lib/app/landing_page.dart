@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:time_tracker_flutter/app/home_page.dart';
+import 'package:time_tracker_flutter/app/home/jobs_page.dart';
 import 'package:time_tracker_flutter/app/sign_in/sign_in_page.dart';
 import 'package:time_tracker_flutter/services/authBase.dart';
+import 'package:time_tracker_flutter/services/database.dart';
 
 //Removed state (dynamic data) and callback functions from the landing page.
 //Now that there is no dynamic data in the landing page, it can become a statelesswidget
@@ -16,16 +17,18 @@ class LandingPage extends StatelessWidget {
       stream: auth.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.active) {
-          final User? user = snapshot.data; //Specified with the type of the StreamBuilder
+          final User? user =
+              snapshot.data; //Specified with the type of the StreamBuilder
           if (user == null) {
             print("in here");
             return SignInPage.create(context);
+          } else {
+            return Provider<Database>(
+              create: (_) => FirestoreDatabase(uid: user.uid),
+              child: JobsPage(),
+            );
           }
-          else {
-            return HomePage();
-          }
-        }
-        else {
+        } else {
           return Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
